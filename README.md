@@ -1,66 +1,175 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Лабораторная работа №4. Формы и валидация данных
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Цель работы
 
-## About Laravel
+Познакомиться с основами создания и управления формами в **Laravel**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Освоить механизмы валидации данных на сервере, использовать предустановленные и кастомные правила валидации, а также научиться обрабатывать ошибки и обеспечивать безопасность данных.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Условие
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+В данной лабораторной работе вы создадите HTML-формы, реализуете проверку данных на стороне сервера и обеспечите безопасное взаимодействие с пользователем, предотвращая уязвимости, такие как **XSS** и **CSRF**.
 
-## Learning Laravel
+> [!NOTE]
+> В данной лабораторной работе вы можете продолжать свою прошлую работу или начать новый проект.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### №1. Подготовка к работе
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+1. Создайте новый проект Laravel (если не установлен) или продолжите работу с прошлым проектом.
+2. Обновите переменные окружения в `.env`, если требуется подключение к базе данных.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### №2. Создание формы
 
-## Laravel Sponsors
+1. Создайте форму для добавления новой задачи:
+   1. Форма должна содержать следующие поля: `Название`, `Описание`, `Дата выполнения`, `Категория`.
+   2. Используйте Blade-шаблоны для рендеринга формы
+   3. Поле `Категория` должно быть выпадающим списком, загруженным из таблицы категорий в базе данных.
+   4. Обеспечьте, чтобы форма отправляла данные методом **POST** на маршрут, созданный для обработки данных.
+2. Создайте маршрут `POST /tasks` для сохранения данных из формы в базе данных. Для удобства можно использовать ресурсный контроллер.
+3. Обновите контроллер `TaskController`
+   1. Добавьте метод `create`, который возвращает представление с формой.
+   2. Добавьте метод `store`, который обрабатывает данные из формы и сохраняет их.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### №3. Валидация данных на стороне сервера
 
-### Premium Partners
+1. Реализуйте валидацию данных непосредственно в методе `store` контроллера `TaskController`.
+2. Требования к полям:
+   - `title` — обязательное, строка, минимальная длина 3 символа.
+   - `description` — строка, необязательно, максимальная длина 500 символов.
+   - `due_date` — обязательное, дата, должна быть не меньше сегодняшней даты.
+   - `category_id` — обязательное, должно существовать в таблице categories.
+3. Обработайте ошибки валидации и верните их обратно к форме, отображая сообщения об ошибках рядом с полями.
+4. Проверьте корректность работы валидации и убедитесь, что ошибки отображаются правильно.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### №4. Создание собственного класса запроса (Request)
 
-## Contributing
+1. На втором этапе создайте собственный класс запроса для валидации формы задачи:
+   - Используйте команду `php artisan make:request CreateTaskRequest`
+   - В классе `CreateTaskRequest` определите правила валидации, аналогичные тем, что были в контроллере.
+   - Обновите метод store контроллера `TaskController` для использования `CreateTaskRequest` вместо стандартного `Request`.
+2. Добавьте логику валидации для связанных данных
+   -  Проверьте, что значение `category_id` действительно существует в базе данных, и оно принадлежит определенной категории.
+3. Убедитесь, что данные проходят валидацию через TaskRequest и что все ошибки корректно обрабатываются и возвращаются к форме.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### №5. Добавление флеш-сообщений
 
-## Code of Conduct
+1. Обновите HTML-форму для отображения подтверждающего сообщения об успешном сохранении задачи (флеш-сообщение).
+2. Обновите метод store контроллера `TaskController`, чтобы добавлять флеш-сообщение при успешном сохранении задачи.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### №6. Защита от CSRF
 
-## Security Vulnerabilities
+1. Обеспечение безопасности данных в формах:
+   - Добавьте директиву `@csrf` в форму для защиты от атаки **CSRF**.
+   - Убедитесь, что форма отправляется только с помощью метода **POST**.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+### №7. Обновление задачи
 
-## License
+1. Добавьте возможность редактирования задачи:
+   1. Создайте форму для редактирования задачи.
+   2. Создайте новый Request-класс `UpdateTaskRequest` с аналогичными правилами валидации.
+   3. Создайте маршрут `GET /tasks/{task}/edit` и метод `edit` в контроллере `TaskController`.
+   4. Создайте маршрут `PUT /tasks/{task}` для обновления задачи.
+   5. Обновите метод `update` в контроллере `TaskController` для обработки данных из формы.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+### Дополнительное задание
+
+1. Создайте кастомное правило валидации, проверяющее, что `description` не содержит запрещенные слова.
+2. Используйте Artisan-команду: `php artisan make:rule NoRestrictedWords`.
+3. римените это правило к полю description в классе `CreateTaskRequest`.
+
+## Контрольные вопросы
+
+1. Что такое валидация данных и зачем она нужна?
+2. Как обеспечить защиту формы от CSRF-атак в Laravel?
+3. Как создать и использовать собственные классы запросов (Request) в Laravel?
+4.Как защитить данные от XSS-атак при выводе в представлении?
+
+
+## Выполнение лабораторной
+
+### Создание формы
+1. 
+![image](https://github.com/user-attachments/assets/e14da94b-bab7-4de2-ad5c-1a61b4923d35)
+
+
+2. 
+![alt text](image-2.png)
+
+3. 
+![alt text](image-3.png)
+
+### №3. Валидация данных на стороне сервера
+
+![alt text](image-1.png)
+
+![image](https://github.com/user-attachments/assets/97c43bfb-ae0f-4c4d-b9af-e9848e73070c)
+
+
+### №4. Создание собственного класса запроса (Request)
+
+![alt text](image-5.png)
+
+![image](https://github.com/user-attachments/assets/9bbeb59d-f7bf-41d5-9465-6f2d60f0b378)
+
+
+### №5. Добавление флеш-сообщений
+
+```php
+session()->flash('success', 'Задача успешно создана.');
+```
+
+![alt text](image-8.png)
+
+![image](https://github.com/user-attachments/assets/38e2989e-b7c8-4c25-9abb-552ab4f67f11)
+
+![image](https://github.com/user-attachments/assets/a7cef27c-e5e9-48a2-898a-a39f2a0a713d)
+
+
+### №6. Защита от CSRF
+
+![alt text](image-9.png)
+
+### №7. Обновление задачи
+
+```bash
+php artisan make:request UpdateTaskRequest
+```
+
+![image](https://github.com/user-attachments/assets/295a6ce5-8c17-4565-bc8d-be7968212dc5)
+
+
+![alt text](image-10.png)
+
+### Дополнительное задание
+
+![alt text](image-12.png)
+
+## Контрольные вопросы
+
+1. Что такое валидация данных и зачем она нужна?
+
+    Валидация данных — это процесс проверки данных на соответствие определённым правилам и требованиям перед их обработкой или  сохранением. Валидация помогает обеспечить целостность и         корректность данных, предотвращает ошибки и уязвимости, такие как SQL-инъекции и XSS-атаки, и улучшает пользовательский опыт, предоставляя обратную связь о некорректных данных.
+
+2. Как обеспечить защиту формы от CSRF-атак в Laravel?
+
+    В Laravel защита от CSRF-атак обеспечивается автоматически с помощью встроенного механизма CSRF-токенов. Чтобы защитить форму, необходимо добавить директиву @csrf внутри тега form:
+    ```php
+    <form action="{{ route('tasks.store') }}" method="POST">
+        @csrf
+        ...
+    </form>
+    ```
+3. Как создать и использовать собственные классы запросов (Request) в Laravel?
+
+    Для создания собственного класса запроса используится команду Artisan:
+    ```bash
+    php artisan make:request CreateTaskRequest
+    ```
+    В котором уже настраиваются правила валидации и авторизации.
+
+4. Как защитить данные от XSS-атак при выводе в представлении?
+
+    Для защиты данных от XSS-атак при выводе в представлении используются функции экранирования, такие как {{ }} в Blade-шаблонах Laravel. Эти функции автоматически экранируют специальные символы HTML, предотвращая выполнение вредоносного кода:
+    ```php
+    <div>{{ $task->description }}</div>
+    ```
